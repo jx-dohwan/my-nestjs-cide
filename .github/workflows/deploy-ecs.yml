@@ -33,7 +33,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          # ⚠️ 이 ARN을 본인의 'github-actions-ecs-deploy-role' ARN으로 수정하세요!
+          # ⚠️ 이 ARN은 본인의 'github-actions-ecs-deploy-role' ARN으로 이미 올바르게 설정되어 있습니다.
           role-to-assume: arn:aws:iam::441866789243:role/github-actions-ecs-deploy-role
           role-session-name: github-actions-deploy
           aws-region: ${{ env.AWS_REGION }}
@@ -54,9 +54,9 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           # ECR에 푸시
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          # latest 태그도 추가로 푸시 (선택 사항)
-          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          # [수정됨] ECR이 '변경 불가능' 설정이므로 latest 태그 푸시 부분을 주석 처리합니다.
+          # docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          # docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
           # 다음 단계에서 사용할 수 있도록 이미지 주소를 출력 변수로 저장
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
@@ -75,5 +75,5 @@ jobs:
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }} # 5번에서 수정한 파일
           service: ${{ env.ECS_SERVICE }} # my-nestjs-service
-          cluster: ${{ env.ECS_CLUSTER }} # my-app-cluster
+          cluster: ${{ env.ECS_CLUSTER }} # my-app-cluster2
           wait-for-service-stability: true # 배포 완료까지 대기
