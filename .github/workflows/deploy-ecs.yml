@@ -7,7 +7,7 @@ on:
 # 로봇이 사용할 변수 설정
 env:
   AWS_REGION: ap-northeast-2
-  ECR_REPOSITORY: my-nestjs-app
+  ECR_REPOSITORY: my-nest-app
   ECS_SERVICE: my-nestjs-service
   ECS_CLUSTER: my-app-cluster
   ECS_TASK_DEFINITION: ./task-definition.json
