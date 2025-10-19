@@ -9,7 +9,7 @@ env:
   AWS_REGION: ap-northeast-2
   ECR_REPOSITORY: my-nest-app
   ECS_SERVICE: my-nestjs-service
-  ECS_CLUSTER: my-app-cluster
+  ECS_CLUSTER: my-app-cluster2
   ECS_TASK_DEFINITION: ./task-definition.json
   CONTAINER_NAME: nestjs-container
 
