@@ -1,0 +1,100 @@
+{
+    "compatibilities": [
+      "EC2",
+      "FARGATE",
+      "MANAGED_INSTANCES"
+    ],
+    "containerDefinitions": [
+      {
+        "cpu": 0,
+        "environment": [
+          {
+            "name": "PORT",
+            "value": "3000"
+          },
+          {
+            "name": "NODE_ENV",
+            "value": "production"
+          }
+        ],
+        "environmentFiles": [],
+        "essential": true,
+        "image": "441866789243.dkr.ecr.ap-northeast-2.amazonaws.com/my-nest-app",
+        "logConfiguration": {
+          "logDriver": "awslogs",
+          "options": {
+            "awslogs-group": "/ecs/my-nestjs-app-task",
+            "awslogs-create-group": "true",
+            "awslogs-region": "ap-northeast-2",
+            "awslogs-stream-prefix": "ecs"
+          },
+          "secretOptions": []
+        },
+        "mountPoints": [],
+        "name": "nestjs-container",
+        "portMappings": [
+          {
+            "appProtocol": "http",
+            "containerPort": 3000,
+            "hostPort": 3000,
+            "name": "nestjs-container-3000-tcp",
+            "protocol": "tcp"
+          }
+        ],
+        "systemControls": [],
+        "ulimits": [],
+        "volumesFrom": []
+      }
+    ],
+    "cpu": "256",
+    "enableFaultInjection": false,
+    "executionRoleArn": "arn:aws:iam::441866789243:role/ecsTaskExecutionRole",
+    "family": "my-nestjs-app-task",
+    "memory": "512",
+    "networkMode": "awsvpc",
+    "placementConstraints": [],
+    "registeredAt": "2025-10-19T01:25:56.094Z",
+    "registeredBy": "arn:aws:iam::441866789243:root",
+    "requiresAttributes": [
+      {
+        "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+      },
+      {
+        "name": "ecs.capability.execution-role-awslogs"
+      },
+      {
+        "name": "com.amazonaws.ecs.capability.ecr-auth"
+      },
+      {
+        "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+      },
+      {
+        "name": "com.amazonaws.ecs.capability.task-iam-role"
+      },
+      {
+        "name": "ecs.capability.execution-role-ecr-pull"
+      },
+      {
+        "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+      },
+      {
+        "name": "ecs.capability.task-eni"
+      },
+      {
+        "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+      }
+    ],
+    "requiresCompatibilities": [
+      "FARGATE"
+    ],
+    "revision": 1,
+    "runtimePlatform": {
+      "cpuArchitecture": "X86_64",
+      "operatingSystemFamily": "LINUX"
+    },
+    "status": "ACTIVE",
+    "taskDefinitionArn": "arn:aws:ecs:ap-northeast-2:441866789243:task-definition/my-nestjs-app-task:1",
+    "taskRoleArn": "arn:aws:iam::441866789243:role/ecsTaskRole",
+    "volumes": [],
+    "tags": []
+  }

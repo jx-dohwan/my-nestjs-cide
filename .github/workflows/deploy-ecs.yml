@@ -1,0 +1,79 @@
+name: Deploy to Amazon ECS
+on:
+  push:
+    branches:
+      - main
+
+# 로봇이 사용할 변수 설정
+env:
+  AWS_REGION: ap-northeast-2
+  ECR_REPOSITORY: my-nestjs-app
+  ECS_SERVICE: my-nestjs-service
+  ECS_CLUSTER: my-app-cluster
+  ECS_TASK_DEFINITION: ./task-definition.json
+  CONTAINER_NAME: nestjs-container
+
+# 로봇 권한 설정 (OIDC용)
+permissions:
+  id-token: write 
+  contents: read 
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      # 1. 코드 다운로드
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. AWS 로그인 (OIDC 사용)
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # ⚠️ 이 ARN을 본인의 'github-actions-ecs-deploy-role' ARN으로 수정하세요!
+          role-to-assume: arn:aws:iam::123456789012:role/github-actions-ecs-deploy-role
+          role-session-name: github-actions-deploy
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 3. ECR(이미지 저장소) 로그인
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # 4. Docker 이미지 빌드 및 ECR에 업로드
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }} # 커밋 ID를 이미지 태그로 사용
+        run: |
+          # Docker 이미지 빌드
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          # ECR에 푸시
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          # latest 태그도 추가로 푸시 (선택 사항)
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          # 다음 단계에서 사용할 수 있도록 이미지 주소를 출력 변수로 저장
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      # 5. task-definition.json 파일 수정
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.ECS_TASK_DEFINITION }} # 1번 파일
+          container-name: ${{ env.CONTAINER_NAME }} # nestjs-container
+          image: ${{ steps.build-image.outputs.image }} # 4번에서 만든 이미지 주소
+
+      # 6. ECS 서비스에 새 버전 배포
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.task-def.outputs.task-definition }} # 5번에서 수정한 파일
+          service: ${{ env.ECS_SERVICE }} # my-nestjs-service
+          cluster: ${{ env.ECS_CLUSTER }} # my-app-cluster
+          wait-for-service-stability: true # 배포 완료까지 대기
