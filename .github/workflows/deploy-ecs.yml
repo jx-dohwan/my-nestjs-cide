@@ -34,7 +34,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           # ⚠️ 이 ARN을 본인의 'github-actions-ecs-deploy-role' ARN으로 수정하세요!
-          role-to-assume: arn:aws:iam::123456789012:role/github-actions-ecs-deploy-role
+          role-to-assume: arn:aws:iam::441866789243:role/github-actions-ecs-deploy-role
           role-session-name: github-actions-deploy
           aws-region: ${{ env.AWS_REGION }}
 
